@@ -1,0 +1,8 @@
+{
+  "templates": [
+    "solo-package"
+  ],
+  "vars": {
+    "repo": "route"
+  }
+}
