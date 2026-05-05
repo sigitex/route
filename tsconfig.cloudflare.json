@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "references": [
+    {
+      "path": "./tsconfig.src.json"
+    }
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "lib": [
+      "ESNext"
+    ],
+    "types": [
+      "@cloudflare/workers-types"
+    ]
+  },
+  "include": [
+    "src/cloudflare"
+  ],
+  "exclude": [
+    "src/global.d.ts"
+  ]
+}
