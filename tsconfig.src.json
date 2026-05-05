@@ -1,0 +1,13 @@
+{
+  "exclude": [
+    "src/cloudflare",
+    "src/bun"
+  ],
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true
+  },
+  "include": [
+    "src"
+  ]
+}

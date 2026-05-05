@@ -1,6 +1,10 @@
 {
   "templates": [
-    "solo-package"
+    "profile/library",
+    "workflow/mirror",
+    "workflow/publish-npm",
+    "adapts-to/bun",
+    "adapts-to/cloudflare"
   ],
   "vars": {
     "repo": "route"

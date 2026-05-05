@@ -1,23 +1,20 @@
 {
-  "compilerOptions": {
-    "module": "esnext",
-    "target": "esnext",
-    "lib": [
-      "esnext"
-    ],
-    "moduleResolution": "bundler",
-    "esModuleInterop": true,
-    "skipDefaultLibCheck": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "outDir": "lib",
-    "noEmit": true
-  },
-  "include": [
-    "./src"
-  ],
-  "exclude": [
-    "./src/bun",
-    "./src/cloudflare"
+  "files": [],
+  "references": [
+    {
+      "path": "./tsconfig.cloudflare.json"
+    },
+    {
+      "path": "./tsconfig.bun.json"
+    },
+    {
+      "path": "./tsconfig.src.json"
+    },
+    {
+      "path": "./tsconfig.test.json"
+    },
+    {
+      "path": "./tsconfig.config.json"
+    }
   ]
 }
