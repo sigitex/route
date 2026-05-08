@@ -7,6 +7,7 @@ export type HstsOptions = {
   readonly preload?: boolean
 }
 
+/** Sets Strict-Transport-Security header. */
 export function hsts(options?: HstsOptions): RouteMiddleware {
   const maxAge = options?.maxAge ?? 31536000
   const includeSubDomains = options?.includeSubDomains ?? true

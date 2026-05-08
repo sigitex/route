@@ -14,6 +14,7 @@ export type CorsOptions = {
   readonly maxAge?: number
 }
 
+/** Handles CORS preflight and response headers. */
 export function cors(options?: CorsOptions): RouteMiddleware {
   const originOption = options?.origin ?? "*"
   const methods = options?.methods ?? [

@@ -9,6 +9,7 @@ function make(value: string): RouteMiddleware {
   }
 }
 
+/** Pre-built Referrer-Policy header middlewares. */
 export namespace referrerPolicy {
   export const noReferrer = make(HTTP.referrerPolicy.noReferrer)
   export const noReferrerWhenDowngrade = make(

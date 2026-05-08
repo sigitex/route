@@ -6,6 +6,7 @@ import type {
   RequestContext,
 } from "./router.types"
 
+/** Core router that dispatches requests through a handler chain. */
 export class Router {
   private readonly handlers: RequestHandler[]
   private readonly container: Container | undefined

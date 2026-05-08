@@ -20,6 +20,7 @@ export type RateLimitOptions = {
   readonly headers?: boolean
 }
 
+/** IP-based rate limiting with pluggable storage. */
 export function rateLimit(options?: RateLimitOptions): RouteMiddleware {
   const window = options?.window ?? 60
   const max = options?.max ?? 100
@@ -36,8 +37,8 @@ export function rateLimit(options?: RateLimitOptions): RouteMiddleware {
       lastResult = result
 
       if (result.count > max) {
-        const response = new Response(
-          JSON.stringify({ error: HTTP.statusText.TooManyRequests }),
+        const response = Response.json(
+          { error: HTTP.statusText.TooManyRequests },
           {
             status: HTTP.status.TooManyRequests,
             statusText: HTTP.statusText.TooManyRequests,

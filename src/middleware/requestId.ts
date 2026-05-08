@@ -10,6 +10,7 @@ export type RequestIdOptions = {
   readonly generate?: () => string
 }
 
+/** Reads or generates a request ID, binds it to context, and echoes it on the response. */
 export function requestId(options?: RequestIdOptions): RouteMiddleware {
   const header = options?.header ?? HTTP.header.XRequestId
   const generate = options?.generate ?? (() => crypto.randomUUID())

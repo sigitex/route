@@ -18,6 +18,7 @@ export type CacheOptions = {
   readonly vary?: string | string[]
 }
 
+/** Sets Cache-Control (and optionally Vary) headers on responses. */
 export function cache(options: string | CacheOptions): RouteMiddleware {
   const directive =
     typeof options === "string" ? options : buildDirective(options)

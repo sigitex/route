@@ -1,3 +1,4 @@
+/** HTTP constants for methods, statuses, headers, and content types. */
 export const HTTP = {
   method: {
     GET: "GET",

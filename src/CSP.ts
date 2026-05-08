@@ -1,5 +1,6 @@
 const nonce = Symbol("csp-nonce")
 
+/** Content-Security-Policy source value constants. */
 export const CSP = {
   self: "'self'",
   none: "'none'",
@@ -15,4 +16,5 @@ export const CSP = {
   wss: "wss:",
 } as const
 
+/** A CSP source value: a string directive or the nonce symbol. */
 export type CspSource = string | typeof nonce

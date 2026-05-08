@@ -6,6 +6,7 @@ type BunOptions = {
   readonly assets?: string
 }
 
+/** Bun runtime adapter; binds a local-filesystem Assets implementation. */
 export function bun(options: BunOptions = {}): RequestHandler {
   const assets = bunAssets(options.assets ?? "./assets")
   return ({ bind }: { bind: (bindings: { assets: Assets }) => void }) => {
