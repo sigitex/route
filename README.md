@@ -377,3 +377,44 @@ Error classes that can be thrown from handlers:
 | `MethodNotAllowed` | 405    | `"Method not allowed."`  |
 | `InvalidRequest`   | 400    | `"Invalid request."`     |
 | `ServerError`      | --     | `"Internal error."`      |
+
+## Internals
+
+### Request Lifecycle
+
+When `route()` is called it creates a `Router` and returns its `route` method. On each request:
+
+1. A `RequestContext` is created with `request`, `env`, `url`, `bind`, and `dispatch`.
+2. If a `Container` was provided, it is cloned and the context is bound into it.
+3. Each handler is dispatched in order. The first to return a non-`undefined` value wins.
+4. If no handler matches, a JSON 404 is returned. Uncaught errors produce a JSON 500.
+
+### `bind(bindings)`
+
+Merges key-value pairs into the current request's context. With a container, values are registered in the IoC container; without one, they're `Object.assign`ed directly onto the context object. This is how middleware like `cookies()` and `requestId()` expose their state to downstream handlers.
+
+### `dispatch(handler, middlewares)`
+
+Runs a single handler through a middleware chain:
+
+1. Each middleware's `before` hook runs in order. If any returns a value, it short-circuits as the response.
+2. The handler is invoked. If it returns `undefined`, dispatch returns `undefined` (no match).
+3. The response is bound to context via `bind({ response })`.
+4. Each middleware's `after` hook runs in order. If any returns a value, it replaces the response.
+5. The final response is returned.
+
+Both `bind` and `dispatch` are exposed on the context, so handlers like `prefix` and `pattern` can create nested dispatch chains with their own middleware stacks.
+
+### Container Integration
+
+When `RouterOptions.container` is provided (a `@sigitex/bind` `Container`), the router uses dependency injection instead of plain context objects:
+
+- The container is **cloned per-request** so concurrent requests don't share state.
+- `bind()` registers values in the container rather than mutating the context.
+- `invoke()` calls `container.call(handler)` instead of `handler(context)`, letting the container resolve handler parameters by type.
+
+Without a container, handlers receive the context object directly as their first argument.
+
+### Response Coercion
+
+Return values from handlers are coerced: `Response` instances pass through as-is; anything else is `JSON.stringify`ed into a `Response`. Returning `undefined` signals "no match" and the next handler is tried.
