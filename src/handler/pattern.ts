@@ -1,6 +1,10 @@
 import * as RegexParam from "regexparam"
 import { MethodNotAllowed } from "../RouterError"
-import type { RequestContext, RequestHandler, RouteMiddleware } from "../router.types"
+import type {
+  RequestContext,
+  RequestHandler,
+  RouteMiddleware,
+} from "../router.types"
 
 export function pattern(
   method: string | null,
@@ -11,7 +15,9 @@ export function pattern(
   const { pattern, keys } = RegexParam.parse(path)
   return ({ url, request, bind, dispatch }: RequestContext) => {
     const match = pattern.exec(url.pathname)
-    if (!match) return
+    if (!match) {
+      return
+    }
     if (method !== null && request.method !== method) {
       return new MethodNotAllowed(`Please use "${method}".`)
     }

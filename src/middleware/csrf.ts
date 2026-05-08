@@ -26,13 +26,15 @@ export function csrf(options?: CsrfOptions): RouteMiddleware {
         )
       }
 
-      if (!methods.includes(request.method)) return
+      if (!methods.includes(request.method)) {
+        return
+      }
 
       const origin = request.headers.get(HTTP.header.Origin)
       const url = new URL(request.url)
       if (origin && origin !== url.origin) {
-        return new Response(
-          JSON.stringify({ error: HTTP.statusText.Forbidden }),
+        return Response.json(
+          { error: HTTP.statusText.Forbidden },
           {
             status: HTTP.status.Forbidden,
             statusText: HTTP.statusText.Forbidden,
@@ -44,8 +46,8 @@ export function csrf(options?: CsrfOptions): RouteMiddleware {
       const headerToken = request.headers.get(headerName)
 
       if (!cookieToken || !headerToken || cookieToken !== headerToken) {
-        return new Response(
-          JSON.stringify({ error: HTTP.statusText.Forbidden }),
+        return Response.json(
+          { error: HTTP.statusText.Forbidden },
           {
             status: HTTP.status.Forbidden,
             statusText: HTTP.statusText.Forbidden,
@@ -54,7 +56,9 @@ export function csrf(options?: CsrfOptions): RouteMiddleware {
       }
     },
     after: ({ cookies }: { cookies?: Cookies }) => {
-      if (!cookies) return
+      if (!cookies) {
+        return
+      }
       const token = crypto.randomUUID()
       cookies.set(cookieName, token, {
         httpOnly: false,

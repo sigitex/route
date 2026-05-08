@@ -31,10 +31,14 @@ export function cors(options?: CorsOptions): RouteMiddleware {
 
   return {
     before: ({ request }: RequestContext) => {
-      if (request.method !== HTTP.method.OPTIONS) return
+      if (request.method !== HTTP.method.OPTIONS) {
+        return
+      }
 
       const requestOrigin = request.headers.get(HTTP.header.Origin)
-      if (!requestOrigin) return
+      if (!requestOrigin) {
+        return
+      }
 
       const response = new Response(null, { status: HTTP.status.NoContent })
       setOriginHeader(response, requestOrigin, originOption)
@@ -71,7 +75,9 @@ export function cors(options?: CorsOptions): RouteMiddleware {
     },
     after: ({ request, response }: ResponseContext) => {
       const requestOrigin = request.headers.get(HTTP.header.Origin)
-      if (!requestOrigin) return
+      if (!requestOrigin) {
+        return
+      }
 
       setOriginHeader(response, requestOrigin, originOption)
 

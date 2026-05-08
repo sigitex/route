@@ -87,10 +87,14 @@ function buildPolicy(options: CspOptions, nonce?: string): string {
 
   for (const [key, directive] of Object.entries(directiveMap)) {
     const sources = options[key as keyof CspOptions]
-    if (!Array.isArray(sources) || sources.length === 0) continue
+    if (!Array.isArray(sources) || sources.length === 0) {
+      continue
+    }
 
     const resolved = sources.map((source) => {
-      if (source === CSP.nonce) return `'nonce-${nonce}'`
+      if (source === CSP.nonce) {
+        return `'nonce-${nonce}'`
+      }
       return source as string
     })
 

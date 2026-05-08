@@ -36,7 +36,9 @@ export function hardened(options?: HardenedOptions): RouteMiddleware {
   return {
     after: (context: ResponseContext) => {
       for (const part of parts) {
-        if (part.after) part.after(context)
+        if (part.after) {
+          part.after(context)
+        }
       }
     },
   }

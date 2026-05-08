@@ -14,8 +14,8 @@ export function bodyLimit(options?: BodyLimitOptions): RouteMiddleware {
     before: ({ request }: RequestContext) => {
       const contentLength = request.headers.get(HTTP.header.ContentLength)
       if (contentLength && Number.parseInt(contentLength, 10) > maxSize) {
-        return new Response(
-          JSON.stringify({ error: HTTP.statusText.PayloadTooLarge }),
+        return Response.json(
+          { error: HTTP.statusText.PayloadTooLarge },
           {
             status: HTTP.status.PayloadTooLarge,
             statusText: HTTP.statusText.PayloadTooLarge,
@@ -29,8 +29,8 @@ export function bodyLimit(options?: BodyLimitOptions): RouteMiddleware {
           contentType &&
           !contentTypes.some((allowed) => contentType.startsWith(allowed))
         ) {
-          return new Response(
-            JSON.stringify({ error: HTTP.statusText.UnsupportedMediaType }),
+          return Response.json(
+            { error: HTTP.statusText.UnsupportedMediaType },
             {
               status: HTTP.status.UnsupportedMediaType,
               statusText: HTTP.statusText.UnsupportedMediaType,
