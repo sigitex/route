@@ -46,14 +46,6 @@ export default {
 }
 ```
 
-## Entry Points
-
-| Import                      | Description                         |
-| --------------------------- | ----------------------------------- |
-| `@sigitex/route`            | Core router, handlers, middleware   |
-| `@sigitex/route/bun`        | Bun runtime adapter                |
-| `@sigitex/route/cloudflare` | Cloudflare Workers runtime adapter  |
-
 ## `route(...handlers)`
 
 Creates a fetch function `(request: Request, env: Env) => Promise<Response>` from a list of handlers. Handlers are tried in order; the first to return a value produces the response. If none match, a 404 is returned.

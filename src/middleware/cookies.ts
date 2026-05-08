@@ -1,3 +1,4 @@
+// oxlint-disable curly
 import type {
   RequestContext,
   ResponseContext,
@@ -49,10 +50,14 @@ function parseCookies(header: string): Record<string, string> {
   const result: Record<string, string> = {}
   for (const pair of header.split(";")) {
     const index = pair.indexOf("=")
-    if (index === -1) continue
+    if (index === -1) {
+      continue
+    }
     const key = pair.slice(0, index).trim()
     const value = pair.slice(index + 1).trim()
-    if (key) result[key] = decodeURIComponent(value)
+    if (key) {
+      result[key] = decodeURIComponent(value)
+    }
   }
   return result
 }

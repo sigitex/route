@@ -3,7 +3,7 @@ import type {
   RequestHandler,
   RouterOptions,
   RouteMiddleware,
-  RequestContext
+  RequestContext,
 } from "./router.types"
 
 export class Router {
@@ -17,10 +17,7 @@ export class Router {
     this.middlewares = options.middlewares ?? []
   }
 
-  async route(
-    request: Request,
-    env: Env,
-  ): Promise<Response> {
+  async route(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
     const context: RequestContext = {
       request,
@@ -36,7 +33,9 @@ export class Router {
       }
       for (const handler of this.handlers) {
         const result = await dispatch(handler, this.middlewares)
-        if (result === undefined) continue
+        if (result === undefined) {
+          continue
+        }
         return result
       }
       return fail(404, "Not found.")
@@ -59,9 +58,13 @@ export class Router {
       middlewares: RouteMiddleware[],
     ): Promise<Response | undefined> {
       for (const { before } of middlewares) {
-        if (!before) continue
+        if (!before) {
+          continue
+        }
         const interrupt = await Promise.resolve(invoke(before))
-        if (interrupt !== undefined) return respond(interrupt)
+        if (interrupt !== undefined) {
+          return respond(interrupt)
+        }
       }
       const result = await Promise.resolve(invoke(handler))
       if (result === undefined) {
@@ -70,9 +73,13 @@ export class Router {
       const response = respond(result)
       bind({ response })
       for (const { after } of middlewares) {
-        if (!after) continue
+        if (!after) {
+          continue
+        }
         const interrupt = await Promise.resolve(invoke(after))
-        if (interrupt !== undefined) return respond(interrupt)
+        if (interrupt !== undefined) {
+          return respond(interrupt)
+        }
       }
       return respond(result)
     }
@@ -87,7 +94,7 @@ export class Router {
 }
 
 function fail(status: number, error: string) {
-  return new Response(JSON.stringify({ error }), {
+  return Response.json({ error }, {
     status,
     statusText: error,
   })
@@ -96,5 +103,5 @@ function fail(status: number, error: string) {
 function respond(result: unknown) {
   return result instanceof Response
     ? result
-    : new Response(JSON.stringify(result))
+    : Response.json(result)
 }

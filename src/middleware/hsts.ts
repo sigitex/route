@@ -13,8 +13,12 @@ export function hsts(options?: HstsOptions): RouteMiddleware {
   const preload = options?.preload ?? false
 
   let value = `max-age=${maxAge}`
-  if (includeSubDomains) value += "; includeSubDomains"
-  if (preload) value += "; preload"
+  if (includeSubDomains) {
+    value += "; includeSubDomains"
+  }
+  if (preload) {
+    value += "; preload"
+  }
 
   return {
     after: ({ response }: ResponseContext) => {

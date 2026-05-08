@@ -6,7 +6,9 @@ export function www({ secure }: { readonly secure?: boolean }): RequestHandler {
     const isSecure = url.protocol === "https:"
     if (isWww && (secure ? isSecure : true)) return
     url.hostname = `www.${url.hostname}`
-    if (secure) url.protocol = "https:"
+    if (secure) {
+      url.protocol = "https:"
+    }
     return Response.redirect(url, 301)
   }
 }

@@ -19,7 +19,9 @@ function bunAssets(dir: string): Assets {
   return {
     async static(path) {
       const cached = cache.get(path)
-      if (cached) return cached.clone() as Response
+      if (cached) {
+        return cached.clone() as Response
+      }
       const file = Bun.file(join(dir, path))
       const response = new Response(await file.bytes(), {
         headers: { "Content-Type": file.type },
@@ -30,7 +32,9 @@ function bunAssets(dir: string): Assets {
     async file(request) {
       const path = new URL(request.url).pathname
       const file = Bun.file(join(dir, path))
-      if (!await file.exists()) return undefined
+      if (!(await file.exists())) {
+        return undefined
+      }
       return new Response(file) as Response
     },
   }

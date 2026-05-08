@@ -1,9 +1,9 @@
-import { HTTP } from "../HTTP";
+import { HTTP } from "../HTTP"
 import type {
   RequestContext,
   ResponseContext,
   RouteMiddleware,
-} from "../router.types";
+} from "../router.types"
 
 export type RateLimitStore = {
   increment(
@@ -97,7 +97,9 @@ export namespace rateLimit {
 
         // Clean up expired windows
         for (const [k, v] of windows) {
-          if (v.reset < now) windows.delete(k)
+          if (v.reset < now) {
+            windows.delete(k)
+          }
         }
 
         return { count: 1, reset }

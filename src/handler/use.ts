@@ -1,4 +1,8 @@
-import type { RequestContext, RequestHandler, RouteMiddleware } from "../router.types"
+import type {
+  RequestContext,
+  RequestHandler,
+  RouteMiddleware,
+} from "../router.types"
 import { noop } from "./noop"
 
 export function use(
@@ -19,7 +23,9 @@ export function use(
     let response: Response | undefined
     for (const handler of handlers) {
       response = await dispatch(handler, [])
-      if (response !== undefined) break
+      if (response !== undefined) {
+        break
+      }
     }
     if (response === undefined) {
       return

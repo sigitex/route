@@ -1,4 +1,8 @@
-import type { RequestContext, RequestHandler, RouteMiddleware } from "../router.types"
+import type {
+  RequestContext,
+  RequestHandler,
+  RouteMiddleware,
+} from "../router.types"
 import { use } from "./use"
 
 export function prefix(
