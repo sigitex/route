@@ -5,6 +5,7 @@ import type {
 } from "../router.types"
 import { noop } from "./noop"
 
+/** Applies middlewares to a group of handlers without creating a prefix. */
 export function use(
   middlewares: RouteMiddleware[],
   ...handlers: RequestHandler[]

@@ -8,6 +8,7 @@ export type CsrfOptions = {
   readonly methods?: string[]
 }
 
+/** Double-submit cookie CSRF protection; requires cookies() middleware. */
 export function csrf(options?: CsrfOptions): RouteMiddleware {
   const cookieName = options?.cookie ?? "csrf-token"
   const headerName = options?.header ?? HTTP.header.XCsrfToken

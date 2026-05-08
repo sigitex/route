@@ -15,11 +15,13 @@ export type CookieOptions = {
   secure?: boolean
 }
 
+/** Cookie reader/writer bound to the request context. */
 export type Cookies = {
   get(name: string): string | undefined
   set(name: string, value: string, options?: CookieOptions): void
 }
 
+/** Parses request cookies and collects Set-Cookie headers on the response. */
 export function cookies(): RouteMiddleware {
   const pending: { name: string; value: string; options?: CookieOptions }[] = []
   let parsed: Record<string, string> = {}

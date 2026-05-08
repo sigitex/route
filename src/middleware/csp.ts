@@ -45,6 +45,7 @@ const directiveMap: Record<string, string> = {
   manifestSrc: "manifest-src",
 }
 
+/** Sets Content-Security-Policy headers with optional automatic nonce generation. */
 export function csp(options: CspOptions): RouteMiddleware {
   const usesNonce = detectsNonce(options)
   const reportOnly = options.reportOnly ?? false

@@ -9,6 +9,7 @@ function make(value: string): RouteMiddleware {
   }
 }
 
+/** Sets X-Frame-Options header to prevent clickjacking. */
 export namespace frameGuard {
   export const deny = make(HTTP.frameOption.deny)
   export const sameOrigin = make(HTTP.frameOption.sameOrigin)

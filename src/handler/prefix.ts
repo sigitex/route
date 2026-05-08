@@ -5,6 +5,7 @@ import type {
 } from "../router.types"
 import { use } from "./use"
 
+/** Groups handlers under a URL prefix, stripping it before dispatch. */
 export function prefix(
   prefix: string,
   ...handlers: RequestHandler[]

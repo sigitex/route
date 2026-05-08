@@ -6,6 +6,7 @@ import type {
   RouteMiddleware,
 } from "../router.types"
 
+/** Matches a request by method and path pattern, binding extracted params. */
 export function pattern(
   method: string | null,
   path: string,
@@ -36,6 +37,7 @@ export function pattern(
   }
 }
 
+/** Matches GET requests against a path pattern. */
 export function get(
   path: string,
   handler: RequestHandler,
@@ -44,6 +46,7 @@ export function get(
   return pattern("GET", path, handler, ...middlewares)
 }
 
+/** Matches POST requests against a path pattern. */
 export function post(
   path: string,
   handler: RequestHandler,
@@ -52,6 +55,7 @@ export function post(
   return pattern("POST", path, handler, ...middlewares)
 }
 
+/** Matches PUT requests against a path pattern. */
 export function put(
   path: string,
   handler: RequestHandler,
@@ -60,6 +64,7 @@ export function put(
   return pattern("PUT", path, handler, ...middlewares)
 }
 
+/** Matches DELETE requests against a path pattern. */
 export function del(
   path: string,
   handler: RequestHandler,
@@ -68,6 +73,7 @@ export function del(
   return pattern("DELETE", path, handler, ...middlewares)
 }
 
+/** Matches PATCH requests against a path pattern. */
 export function patch(
   path: string,
   handler: RequestHandler,

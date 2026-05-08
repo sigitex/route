@@ -1,6 +1,7 @@
 import { HTTP } from "../HTTP"
 import type { ResponseContext, RouteMiddleware } from "../router.types"
 
+/** Sets X-Content-Type-Options: nosniff. */
 export const noSniff: RouteMiddleware = {
   after: ({ response }: ResponseContext) => {
     response.headers.set(

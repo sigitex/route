@@ -6,6 +6,7 @@ export type BodyLimitOptions = {
   readonly contentTypes?: string[]
 }
 
+/** Rejects requests exceeding a body size or with disallowed content types. */
 export function bodyLimit(options?: BodyLimitOptions): RouteMiddleware {
   const maxSize = options?.maxSize ?? 1_048_576
   const contentTypes = options?.contentTypes

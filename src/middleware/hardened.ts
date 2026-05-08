@@ -11,6 +11,7 @@ export type HardenedOptions = {
   readonly hsts?: false | HstsOptions
 }
 
+/** Convenience bundle applying noSniff, frameGuard, referrerPolicy, and hsts. */
 export function hardened(options?: HardenedOptions): RouteMiddleware {
   const parts: RouteMiddleware[] = []
 

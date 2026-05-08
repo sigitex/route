@@ -9,6 +9,7 @@ type CloudflareOptions = {
   readonly assets?: string
 }
 
+/** Cloudflare Workers adapter; binds a Workers Assets implementation. */
 export function cloudflare(options: CloudflareOptions = {}): RequestHandler {
   const assetsKey = options.assets ?? "ASSETS"
   return ({

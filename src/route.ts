@@ -1,8 +1,10 @@
 import { Router } from "./Router"
 import type { RequestHandler, RouterFetch, RouterOptions } from "./router.types"
 
+/** A handler value that may be falsy, allowing conditional handlers. */
 export type MaybeHandler = RequestHandler | null | undefined | false | 0
 
+/** Creates a fetch function from a list of handlers, tried in order. */
 export function route(...handlers: MaybeHandler[]): RouterFetch
 export function route(
   options: RouterOptions,
