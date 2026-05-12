@@ -2,6 +2,7 @@
   "name": "@sigitex/route",
   "type": "module",
   "license": "MIT",
+  "description": "A server-side web framework.",
   "author": {
     "name": "Sigitex",
     "url": "http://github.com/sigitex"
