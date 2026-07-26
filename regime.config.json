@@ -1,5 +1,6 @@
 {
   "templates": [
+    "profile/workspace",
     "profile/library",
     "workflow/mirror",
     "workflow/publish-npm",
