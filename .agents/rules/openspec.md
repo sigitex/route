@@ -1,3 +1,7 @@
+---
+description: Rules for OpenSpec propose and archive workflows, including archiving changes that carry buff artifacts.
+---
+
 # OpenSpec Instructions
 
 ## OpenSpec Propose Workflow

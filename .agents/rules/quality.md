@@ -1,3 +1,7 @@
+---
+alwaysApply: true
+---
+
 # Quality Guardrails
 
 Use these while building. Do not turn every task into a full review; apply as lightweight pressure before adding or changing structure.

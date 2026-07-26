@@ -1,3 +1,7 @@
+---
+description: Local vs sync mode rules for git and Forgejo — commit, push, and PR policy per workflow.
+---
+
 # Forge Sync Rules
 
 When a workflow uses explicit mode:

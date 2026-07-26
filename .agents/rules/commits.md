@@ -1,3 +1,7 @@
+---
+condition: "(?i)git commit|commit message|conventional commit"
+---
+
 # Commits
 
 When commiting changes, follow these rules to write the messages:
