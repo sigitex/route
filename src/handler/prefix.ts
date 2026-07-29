@@ -23,15 +23,16 @@ export function prefix(
   const [middlewares, handlers] = Array.isArray(head)
     ? [head, tail]
     : [[], [head, ...tail]]
-  const root = prefix.endsWith("/") ? prefix : prefix + "/"
+  const base = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix
+  const root = base + "/"
   const handle = use(middlewares, ...handlers)
   return (context: RequestContext) => {
-    if (!context.url.pathname.startsWith(root)) {
+    const { pathname } = context.url
+    if (pathname !== base && !pathname.startsWith(root)) {
       return
     }
     const url = new URL(context.url.href)
-    url.pathname = url.pathname.slice(root.length - 1) || "/"
-    context.bind({ url })
-    return handle(context)
+    url.pathname = pathname === base ? "/" : pathname.slice(base.length)
+    return context.dispatch(handle, [], { url })
   }
 }

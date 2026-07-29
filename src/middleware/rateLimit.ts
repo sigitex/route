@@ -20,49 +20,54 @@ export type RateLimitOptions = {
   readonly headers?: boolean
 }
 
-/** IP-based rate limiting with pluggable storage. */
+type RateLimitResult = { count: number; reset: number }
+
+/**
+ * IP-based rate limiting with pluggable storage.
+ *
+ * Uses a fixed-window algorithm: requests are counted per `window`-second
+ * bucket, and every counter resets at each bucket boundary.
+ */
 export function rateLimit(options?: RateLimitOptions): RouteMiddleware {
   const window = options?.window ?? 60
   const max = options?.max ?? 100
+  if (!Number.isFinite(window) || window <= 0) {
+    throw new Error("rateLimit() requires a finite window greater than 0.")
+  }
+  if (!Number.isFinite(max) || max < 0) {
+    throw new Error("rateLimit() requires a finite max of at least 0.")
+  }
   const key = options?.key ?? rateLimit.ip
   const store = options?.store ?? rateLimit.memory()
   const headers = options?.headers ?? true
-
-  let lastResult: { count: number; reset: number } | undefined
 
   return {
     before: async (context: RequestContext) => {
       const id = key(context)
       const result = await store.increment(id, window)
-      lastResult = result
+      context.bind({ __rateLimitResult: result })
 
       if (result.count > max) {
-        const response = Response.json(
+        return Response.json(
           { error: HTTP.statusText.TooManyRequests },
           {
             status: HTTP.status.TooManyRequests,
             statusText: HTTP.statusText.TooManyRequests,
           },
         )
-        if (headers) {
-          response.headers.set(HTTP.header.XRateLimitLimit, String(max))
-          response.headers.set(HTTP.header.XRateLimitRemaining, "0")
-          response.headers.set(
-            HTTP.header.XRateLimitReset,
-            String(result.reset),
-          )
-        }
-        return response
       }
     },
-    after: ({ response }: ResponseContext) => {
-      if (headers && lastResult) {
-        const remaining = Math.max(0, max - lastResult.count)
+    after: ({
+      response,
+      __rateLimitResult,
+    }: ResponseContext & { __rateLimitResult: RateLimitResult }) => {
+      if (headers) {
+        const remaining = Math.max(0, max - __rateLimitResult.count)
         response.headers.set(HTTP.header.XRateLimitLimit, String(max))
         response.headers.set(HTTP.header.XRateLimitRemaining, String(remaining))
         response.headers.set(
           HTTP.header.XRateLimitReset,
-          String(lastResult.reset),
+          String(__rateLimitResult.reset),
         )
       }
     },

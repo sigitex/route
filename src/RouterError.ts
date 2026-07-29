@@ -1,10 +1,10 @@
 // oxlint-disable unicorn/custom-error-definition
-/** Base error class with an HTTP status code. */
+/** Base error class with an HTTP status. */
 export class RouterError extends Error {
-  readonly code: number
-  constructor(code: number, message: string) {
+  readonly status: number
+  constructor(status: number, message: string) {
     super(message)
-    this.code = code
+    this.status = status
     this.name = "RouterError"
   }
 }

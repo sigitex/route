@@ -19,7 +19,7 @@
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250425.0",
     "@sigitex/ssjs": "^1.1.0",
-    "@sigitex/bind": "^1.0.0",
+    "@sigitex/bind": "^1.1.2",
     "@types/bun": "^1.3.13",
     "@typescript/native-preview": "beta",
     "oxfmt": "^0.47.0",

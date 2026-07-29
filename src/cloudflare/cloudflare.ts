@@ -1,4 +1,4 @@
-import type { Assets } from "../Assets"
+import { Assets } from "../Assets"
 import type { RequestHandler } from "../router.types"
 
 type CloudflareAssets = {
@@ -28,10 +28,12 @@ export function cloudflare(options: CloudflareOptions = {}): RequestHandler {
   }
 }
 
+// The binding is the only source of files, so the app root and the asset
+// root coincide; the `{ root: true }` option has no effect here.
 function cloudflareAssets(binding: CloudflareAssets, origin: string): Assets {
   return {
     async static(path) {
-      return binding.fetch(new Request(`${origin}${path}`))
+      return binding.fetch(new Request(`${origin}${Assets.pathname(path)}`))
     },
     async file(request) {
       const response = await binding.fetch(request)

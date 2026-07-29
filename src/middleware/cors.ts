@@ -16,18 +16,24 @@ export type CorsOptions = {
 
 /** Handles CORS preflight and response headers. */
 export function cors(options?: CorsOptions): RouteMiddleware {
-  const originOption = options?.origin ?? "*"
-  const methods = options?.methods ?? [
-    HTTP.method.GET,
-    HTTP.method.HEAD,
-    HTTP.method.PUT,
-    HTTP.method.PATCH,
-    HTTP.method.POST,
-    HTTP.method.DELETE,
-  ]
-  const allowHeaders = options?.allowHeaders
-  const exposeHeaders = options?.exposeHeaders
+  const rawOrigin = options?.origin ?? "*"
   const credentials = options?.credentials ?? false
+  if (rawOrigin === "*" && credentials) {
+    throw new Error('cors() cannot combine origin "*" with credentials.')
+  }
+  const originOption = Array.isArray(rawOrigin) ? [...rawOrigin] : rawOrigin
+  const methods = [
+    ...(options?.methods ?? [
+      HTTP.method.GET,
+      HTTP.method.HEAD,
+      HTTP.method.PUT,
+      HTTP.method.PATCH,
+      HTTP.method.POST,
+      HTTP.method.DELETE,
+    ]),
+  ]
+  const allowHeaders = options?.allowHeaders && [...options.allowHeaders]
+  const exposeHeaders = options?.exposeHeaders && [...options.exposeHeaders]
   const maxAge = options?.maxAge
 
   return {
@@ -38,6 +44,10 @@ export function cors(options?: CorsOptions): RouteMiddleware {
 
       const requestOrigin = request.headers.get(HTTP.header.Origin)
       if (!requestOrigin) {
+        return
+      }
+
+      if (!request.headers.get(HTTP.header.AccessControlRequestMethod)) {
         return
       }
 

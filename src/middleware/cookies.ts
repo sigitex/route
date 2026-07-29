@@ -21,24 +21,29 @@ export type Cookies = {
   set(name: string, value: string, options?: CookieOptions): void
 }
 
+type PendingCookie = { name: string; value: string; options?: CookieOptions }
+
 /** Parses request cookies and collects Set-Cookie headers on the response. */
 export function cookies(): RouteMiddleware {
-  const pending: { name: string; value: string; options?: CookieOptions }[] = []
-  let parsed: Record<string, string> = {}
-
   return {
     before: ({ request, bind }: RequestContext) => {
-      parsed = parseCookies(request.headers.get("cookie") ?? "")
+      const parsed = parseCookies(request.headers.get("cookie") ?? "")
+      const pending: PendingCookie[] = []
       bind({
         cookies: {
           get: (name: string) => parsed[name],
-          set: (name: string, value: string, options?: CookieOptions) =>
-            pending.push({ name, value, options }),
+          set: (name: string, value: string, options?: CookieOptions) => {
+            pending.push({ name, value, options })
+          },
         } satisfies Cookies,
+        __cookiesPending: pending,
       })
     },
-    after: ({ response }: ResponseContext) => {
-      for (const { name, value, options } of pending) {
+    after: ({
+      response,
+      __cookiesPending,
+    }: ResponseContext & { __cookiesPending: PendingCookie[] }) => {
+      for (const { name, value, options } of __cookiesPending) {
         response.headers.append(
           "set-cookie",
           serializeCookie(name, value, options),

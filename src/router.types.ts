@@ -19,15 +19,20 @@ export type RequestContext = {
   readonly url: URL
   readonly bind: RouterBind
   readonly dispatch: RouterDispatch
+  readonly allow: RouterAllow
 }
 
 /** Adds values to the current request context. */
 export type RouterBind = (bindings: { [key: string]: any }) => void
 
-/** Dispatches a handler through a middleware chain. */
+/** Records a path-matched method for 405 Allow aggregation. */
+export type RouterAllow = (method: string) => void
+
+/** Dispatches a handler through a middleware chain, optionally seeding the new scope with bindings. */
 export type RouterDispatch = (
   handler: RequestHandler,
   middlewares: RouteMiddleware[],
+  bindings?: { [key: string]: any },
 ) => Promise<Response | undefined>
 
 /** Context available to after-middleware, includes the response. */

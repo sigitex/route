@@ -12,12 +12,14 @@ export const HTTP = {
   status: {
     NoContent: 204,
     MovedPermanently: 301,
+    BadRequest: 400,
     Forbidden: 403,
     PayloadTooLarge: 413,
     UnsupportedMediaType: 415,
     TooManyRequests: 429,
   },
   statusText: {
+    BadRequest: "Bad Request",
     Forbidden: "Forbidden",
     PayloadTooLarge: "Payload Too Large",
     UnsupportedMediaType: "Unsupported Media Type",

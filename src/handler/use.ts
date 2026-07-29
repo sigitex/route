@@ -3,41 +3,20 @@ import type {
   RequestHandler,
   RouteMiddleware,
 } from "../router.types"
-import { noop } from "./noop"
 
 /** Applies middlewares to a group of handlers without creating a prefix. */
 export function use(
   middlewares: RouteMiddleware[],
   ...handlers: RequestHandler[]
 ): RequestHandler {
-  const befores = middlewares.filter(({ before }) => before)
-  const afters = middlewares
-    .filter(({ after }) => after)
-    .map(({ after }) => ({ before: after }) as RouteMiddleware)
-  return async ({ dispatch, bind }: RequestContext) => {
-    if (befores.length) {
-      const interruptBefore = await dispatch(noop, befores)
-      if (interruptBefore !== undefined) {
-        return interruptBefore
-      }
-    }
-    let response: Response | undefined
+  const composite: RequestHandler = async (context: RequestContext) => {
     for (const handler of handlers) {
-      response = await dispatch(handler, [])
-      if (response !== undefined) {
-        break
+      const result = await handler(context)
+      if (result !== undefined) {
+        return result
       }
     }
-    if (response === undefined) {
-      return
-    }
-    bind({ response })
-    if (afters.length) {
-      const interruptAfter = await dispatch(noop, afters)
-      if (interruptAfter !== undefined) {
-        return interruptAfter
-      }
-    }
-    return response
+    return undefined
   }
+  return ({ dispatch }: RequestContext) => dispatch(composite, middlewares)
 }

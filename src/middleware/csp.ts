@@ -6,108 +6,100 @@ import type {
   RouteMiddleware,
 } from "../router.types"
 
+const directiveKeys = [
+  "defaultSrc",
+  "scriptSrc",
+  "styleSrc",
+  "imgSrc",
+  "connectSrc",
+  "fontSrc",
+  "frameSrc",
+  "frameAncestors",
+  "mediaSrc",
+  "objectSrc",
+  "workerSrc",
+  "childSrc",
+  "baseUri",
+  "formAction",
+  "manifestSrc",
+] as const
+
+type DirectiveKey = (typeof directiveKeys)[number]
+
 export type CspOptions = {
-  readonly defaultSrc?: CspSource[]
-  readonly scriptSrc?: CspSource[]
-  readonly styleSrc?: CspSource[]
-  readonly imgSrc?: CspSource[]
-  readonly connectSrc?: CspSource[]
-  readonly fontSrc?: CspSource[]
-  readonly frameSrc?: CspSource[]
-  readonly frameAncestors?: CspSource[]
-  readonly mediaSrc?: CspSource[]
-  readonly objectSrc?: CspSource[]
-  readonly workerSrc?: CspSource[]
-  readonly childSrc?: CspSource[]
-  readonly baseUri?: CspSource[]
-  readonly formAction?: CspSource[]
-  readonly manifestSrc?: CspSource[]
+  readonly [Key in DirectiveKey]?: CspSource[]
+} & {
   readonly upgradeInsecureRequests?: boolean
   readonly reportOnly?: boolean
   readonly reportTo?: string
 }
 
-const directiveMap: Record<string, string> = {
-  defaultSrc: "default-src",
-  scriptSrc: "script-src",
-  styleSrc: "style-src",
-  imgSrc: "img-src",
-  connectSrc: "connect-src",
-  fontSrc: "font-src",
-  frameSrc: "frame-src",
-  frameAncestors: "frame-ancestors",
-  mediaSrc: "media-src",
-  objectSrc: "object-src",
-  workerSrc: "worker-src",
-  childSrc: "child-src",
-  baseUri: "base-uri",
-  formAction: "form-action",
-  manifestSrc: "manifest-src",
-}
+type Directive = { readonly name: string; readonly sources: CspSource[] }
 
 /** Sets Content-Security-Policy headers with optional automatic nonce generation. */
 export function csp(options: CspOptions): RouteMiddleware {
-  const usesNonce = detectsNonce(options)
-  const reportOnly = options.reportOnly ?? false
+  const directives: Directive[] = []
+  for (const key of directiveKeys) {
+    const sources = options[key]
+    if (sources && sources.length > 0) {
+      directives.push({ name: directiveName(key), sources: [...sources] })
+    }
+  }
+  const usesNonce = directives.some(({ sources }) =>
+    sources.includes(CSP.nonce),
+  )
+  const upgradeInsecureRequests = options.upgradeInsecureRequests ?? false
+  const reportTo = options.reportTo
+  const header = options.reportOnly
+    ? HTTP.header.ContentSecurityPolicyReportOnly
+    : HTTP.header.ContentSecurityPolicy
 
   return {
     before: usesNonce
       ? ({ bind }: RequestContext) => {
-          const nonce = crypto.randomUUID()
-          bind({ cspNonce: nonce })
+          bind({ cspNonce: crypto.randomUUID() })
         }
       : undefined,
     after: ({
       response,
       cspNonce,
     }: ResponseContext & { cspNonce?: string }) => {
-      const value = buildPolicy(options, cspNonce)
-      const header = reportOnly
-        ? HTTP.header.ContentSecurityPolicyReportOnly
-        : HTTP.header.ContentSecurityPolicy
+      const value = buildPolicy(
+        directives,
+        upgradeInsecureRequests,
+        reportTo,
+        cspNonce,
+      )
       response.headers.set(header, value)
     },
   }
 }
 
-function detectsNonce(options: CspOptions): boolean {
-  for (const key of Object.keys(directiveMap)) {
-    const sources = options[key as keyof CspOptions]
-    if (
-      Array.isArray(sources) &&
-      sources.includes(CSP.nonce as unknown as CspSource)
-    ) {
-      return true
-    }
-  }
-  return false
+function directiveName(key: DirectiveKey): string {
+  return key.replace(/[A-Z]/g, (char) => `-${char.toLowerCase()}`)
 }
 
-function buildPolicy(options: CspOptions, nonce?: string): string {
+function buildPolicy(
+  directives: Directive[],
+  upgradeInsecureRequests: boolean,
+  reportTo: string | undefined,
+  nonce: string | undefined,
+): string {
   const parts: string[] = []
 
-  for (const [key, directive] of Object.entries(directiveMap)) {
-    const sources = options[key as keyof CspOptions]
-    if (!Array.isArray(sources) || sources.length === 0) {
-      continue
-    }
-
-    const resolved = sources.map((source) => {
-      if (source === CSP.nonce) {
-        return `'nonce-${nonce}'`
-      }
-      return source as string
-    })
-
-    parts.push(`${directive} ${resolved.join(" ")}`)
+  for (const { name, sources } of directives) {
+    const resolved = sources.map((source) =>
+      source === CSP.nonce ? `'nonce-${nonce}'` : (source as string),
+    )
+    parts.push(`${name} ${resolved.join(" ")}`)
   }
 
-  if (options.upgradeInsecureRequests) {
+  if (upgradeInsecureRequests) {
     parts.push("upgrade-insecure-requests")
   }
 
-  if (options.reportTo) {
-    parts.push(`report-to ${options.reportTo}`)
+  if (reportTo) {
+    parts.push(`report-to ${reportTo}`)
   }
 
   return parts.join("; ")

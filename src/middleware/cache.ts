@@ -29,7 +29,7 @@ export function cache(options: string | CacheOptions): RouteMiddleware {
       response.headers.set(HTTP.header.CacheControl, directive)
       if (vary) {
         const value = Array.isArray(vary) ? vary.join(", ") : vary
-        response.headers.set(HTTP.header.Vary, value)
+        response.headers.append(HTTP.header.Vary, value)
       }
     },
   }

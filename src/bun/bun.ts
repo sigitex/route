@@ -1,5 +1,5 @@
-import { join } from "node:path"
-import type { Assets } from "../Assets"
+import Path from "node:path"
+import { Assets } from "../Assets"
 import type { RequestHandler } from "../router.types"
 
 type BunOptions = {
@@ -18,21 +18,23 @@ function bunAssets(dir: string): Assets {
   const cache = new Map<string, Response>()
 
   return {
-    async static(path) {
-      const cached = cache.get(path)
+    async static(path, options) {
+      const pathname = Assets.pathname(path)
+      const key = options?.root ? `root:${pathname}` : pathname
+      const cached = cache.get(key)
       if (cached) {
         return cached.clone() as Response
       }
-      const file = Bun.file(join(dir, path))
+      const file = Bun.file(Path.join(options?.root ? "." : dir, pathname))
       const response = new Response(await file.bytes(), {
         headers: { "Content-Type": file.type },
       })
-      cache.set(path, response.clone() as Response)
+      cache.set(key, response.clone() as Response)
       return response as Response
     },
-    async file(request) {
+    async file(request, options) {
       const path = new URL(request.url).pathname
-      const file = Bun.file(join(dir, path))
+      const file = Bun.file(Path.join(options?.root ? "." : dir, path))
       if (!(await file.exists())) {
         return undefined
       }

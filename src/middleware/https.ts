@@ -6,7 +6,8 @@ export function https(): RequestHandler {
     if (url.protocol === "https:") {
       return
     }
-    url.protocol = "https:"
-    return Response.redirect(url, 301)
+    const target = new URL(url.href)
+    target.protocol = "https:"
+    return Response.redirect(target, 301)
   }
 }

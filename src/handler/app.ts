@@ -2,13 +2,13 @@ import * as RegexParam from "regexparam"
 import type { Assets } from "../Assets"
 import type { RequestHandler, RouteTree } from "../router.types"
 
-/** Serves index.html for paths matching a client-side RouteTree (SPA support). */
-export function app(routes: RouteTree): RequestHandler {
+/** Serves the index document for paths matching a client-side RouteTree (SPA support). */
+export function app(routes: RouteTree, index = "/index.html"): RequestHandler {
   const patterns: RegExp[] = getAppPatterns(routes)
   return async ({ assets, url }: { assets: Assets, url: URL }) => {
     for (const pattern of patterns) {
       if (pattern.test(url.pathname)) {
-        return await assets.static("/index.html")
+        return await assets.static(index, { root: true })
       }
     }
     return

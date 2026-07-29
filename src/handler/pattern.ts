@@ -1,5 +1,4 @@
 import * as RegexParam from "regexparam"
-import { MethodNotAllowed } from "../RouterError"
 import type {
   RequestContext,
   RequestHandler,
@@ -14,13 +13,14 @@ export function pattern(
   ...middlewares: RouteMiddleware[]
 ): RequestHandler {
   const { pattern, keys } = RegexParam.parse(path)
-  return ({ url, request, bind, dispatch }: RequestContext) => {
+  return ({ url, request, dispatch, allow }: RequestContext) => {
     const match = pattern.exec(url.pathname)
     if (!match) {
       return
     }
     if (method !== null && request.method !== method) {
-      return new MethodNotAllowed(`Please use "${method}".`)
+      allow(method)
+      return
     }
     const params: { [key: string]: string } = {}
     if (keys.length > 0) {
@@ -32,8 +32,7 @@ export function pattern(
         params[key] = match[k + 1]
       }
     }
-    bind({ params })
-    return dispatch(handler, middlewares)
+    return dispatch(handler, middlewares, { params })
   }
 }
 
