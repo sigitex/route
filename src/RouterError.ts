@@ -40,3 +40,11 @@ export class InvalidRequest extends RouterError {
     this.name = "InvalidRequest"
   }
 }
+
+/** 401 Unauthorized error. */
+export class Unauthorized extends RouterError {
+  constructor(message?: string) {
+    super(401, message ?? "Unauthorized.")
+    this.name = "Unauthorized"
+  }
+}

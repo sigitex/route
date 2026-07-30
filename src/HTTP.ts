@@ -35,6 +35,7 @@ export const HTTP = {
     Origin: "Origin",
     Referrer: "Referer",
     SetCookie: "Set-Cookie",
+    UserAgent: "User-Agent",
     Vary: "Vary",
     XContentTypeOptions: "X-Content-Type-Options",
     XForwardedFor: "X-Forwarded-For",
