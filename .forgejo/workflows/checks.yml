@@ -20,7 +20,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - uses: https://${{ secrets.FORGE_TOKEN }}@code.quickbasic.org/sigitex/actions/release@main
+      - uses: https://${{ secrets.FORGE_TOKEN }}@code.quickbasic.org/sigitex/actions/publish-npm@main
         with:
           gitea-token: ${{ secrets.FORGE_TOKEN }}
           gitea-url: https://code.quickbasic.org
