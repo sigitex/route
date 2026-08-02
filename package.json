@@ -5,7 +5,7 @@
   "description": "A server-side web framework.",
   "author": {
     "name": "Sigitex",
-    "url": "https://github.com/sigitex"
+    "url": "https://sigitex.com"
   },
   "repository": {
     "type": "git",
@@ -29,13 +29,14 @@
     "semantic-release": "^25.0.3",
     "multi-semantic-release": "^3.1.0",
     "@markwylde/semantic-release-gitea": "^2.2.0",
-    "@semantic-release/exec": "^7.0.3"
+    "@semantic-release/exec": "^7.0.3",
+    "typescript": "^7.0.2"
   },
   "dependencies": {
     "regexparam": "3.0.0"
   },
   "scripts": {
-    "check": "tsgo --build",
+    "check": "tsc --build",
     "test": "bun test --pass-with-no-tests --tsconfig-override tsconfig.test.json",
     "prepare": "husky",
     "lint": "oxlint"
