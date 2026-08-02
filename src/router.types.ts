@@ -28,11 +28,10 @@ export type RouterBind = (bindings: { [key: string]: any }) => void
 /** Records a path-matched method for 405 Allow aggregation. */
 export type RouterAllow = (method: string) => void
 
-/** Dispatches a handler through a middleware chain, optionally seeding the new scope with bindings. */
+/** Dispatches a handler through a middleware chain on the current request context. */
 export type RouterDispatch = (
   handler: RequestHandler,
   middlewares: RouteMiddleware[],
-  bindings?: { [key: string]: any },
 ) => Promise<Response | undefined>
 
 /** Context available to after-middleware, includes the response. */

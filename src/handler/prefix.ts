@@ -26,13 +26,19 @@ export function prefix(
   const base = prefix.endsWith("/") ? prefix.slice(0, -1) : prefix
   const root = base + "/"
   const handle = use(middlewares, ...handlers)
-  return (context: RequestContext) => {
+  return async (context: RequestContext) => {
     const { pathname } = context.url
     if (pathname !== base && !pathname.startsWith(root)) {
       return
     }
-    const url = new URL(context.url.href)
+    const previous = context.url
+    const url = new URL(previous.href)
     url.pathname = pathname === base ? "/" : pathname.slice(base.length)
-    return context.dispatch(handle, [], { url })
+    context.bind({ url })
+    try {
+      return await handle(context)
+    } finally {
+      context.bind({ url: previous })
+    }
   }
 }

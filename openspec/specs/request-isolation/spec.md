@@ -2,12 +2,19 @@
 
 ## Purpose
 
-Request-scoped state: scoped `bind()` overlays for nested dispatch, per-request middleware state, and snapshots of constructor/factory inputs.
+Request-scoped state: sticky per-request `bind()`, match-local `url`/`params` restore, per-request middleware state, and snapshots of constructor/factory inputs.
 
 ## Requirements
 
-### Requirement: Bindings are scoped to their dispatch
-`bind()` SHALL write into a scope created by the current `dispatch()` call. Bindings SHALL be visible to the bound scope and its children, and SHALL unwind (become invisible to the parent) when that dispatch returns.
+### Requirement: Bindings stick for the request
+`bind()` SHALL write into the request's context (or the per-request container clone). Bindings SHALL remain visible for the rest of the request, including across nested `dispatch()` calls. Nested `dispatch()` SHALL NOT create a new binding scope.
+
+#### Scenario: Session user visible inside nested prefix
+- **WHEN** a middleware binds `{ user }` and a later `prefix()` nests into child handlers
+- **THEN** those child handlers observe `user`
+
+### Requirement: Match-local url and params restore after nesting
+`prefix()` SHALL restore the parent `url` after its nested work returns (match or fallthrough). `pattern()` SHALL restore the parent `params` after its nested work returns (match or fallthrough). Sibling candidates SHALL NOT observe a stripped `url` or stale `params` from an earlier fallthrough.
 
 #### Scenario: Prefix fallthrough restores url
 - **WHEN** a `prefix("/api", …)` handler matches the path, binds a stripped `url`, and none of its children produce a result
@@ -18,7 +25,7 @@ Request-scoped state: scoped `bind()` overlays for nested dispatch, per-request 
 - **THEN** subsequent candidates do not observe those `params`
 
 ### Requirement: Middleware factories hold no per-request state
-Middleware factories (`cookies()`, `rateLimit()`) SHALL create per-request state inside their `before` hooks and convey it to `after` hooks via request-scoped bindings or per-request closures. Factory closures SHALL retain only process-wide immutable configuration.
+Middleware factories (`cookies()`, `rateLimit()`) SHALL create per-request state inside their `before` hooks and convey it to `after` hooks via request bindings or per-request closures. Factory closures SHALL retain only process-wide immutable configuration.
 
 #### Scenario: Concurrent requests with cookies middleware
 - **WHEN** two requests are in flight concurrently through one `cookies()` instance and each sets a different cookie

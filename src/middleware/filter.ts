@@ -8,6 +8,6 @@ export function filter(
     if (!(await predicate(context))) {
       return
     }
-    return context.dispatch(handler, [])
+    return handler(context)
   }
 }

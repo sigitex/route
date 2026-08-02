@@ -13,7 +13,8 @@ export function pattern(
   ...middlewares: RouteMiddleware[]
 ): RequestHandler {
   const { pattern, keys } = RegexParam.parse(path)
-  return ({ url, request, dispatch, allow }: RequestContext) => {
+  return async (context: RequestContext) => {
+    const { url, request, dispatch, bind, allow } = context
     const match = pattern.exec(url.pathname)
     if (!match) {
       return
@@ -32,7 +33,13 @@ export function pattern(
         params[key] = match[k + 1]
       }
     }
-    return dispatch(handler, middlewares, { params })
+    const previous = (context as RequestContext & { params?: unknown }).params
+    bind({ params })
+    try {
+      return await dispatch(handler, middlewares)
+    } finally {
+      bind({ params: previous })
+    }
   }
 }
 

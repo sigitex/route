@@ -1,13 +1,19 @@
 {
+  "sources": {
+    "sigitex": "../templates"
+  },
   "templates": [
-    "profile/workspace",
-    "profile/library",
-    "workflow/mirror",
-    "workflow/publish-npm",
-    "adapts-to/bun",
-    "adapts-to/cloudflare"
+    "sigitex:project/workspace",
+    "sigitex:project/library",
+    "sigitex:workflow/mirror",
+    "sigitex:workflow/publish-npm",
+    "sigitex:adapts-to/bun",
+    "sigitex:adapts-to/cloudflare",
+    "sigitex:tool/vibes"
   ],
   "vars": {
-    "repo": "route"
+    "repo": "route",
+    "license": "MIT",
+    "copyright": "Sigitex"
   }
 }

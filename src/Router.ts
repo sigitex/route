@@ -25,7 +25,7 @@ export class Router {
     const { handlers } = this
     const allowed = new Set<string>()
     try {
-      const root = createRootScope(
+      const runtime = createRuntime(
         {
           request,
           env,
@@ -50,7 +50,7 @@ export class Router {
         }
         return fail(404, "Not found.")
       }
-      const response = await dispatch(root, candidates, this.middlewares)
+      const response = await runtime.dispatch(candidates, this.middlewares)
       return response ?? fail(404, "Not found.")
     } catch (error) {
       if (error instanceof RouterError) {
@@ -65,118 +65,91 @@ export class Router {
 // oxlint-disable-next-line typescript/no-explicit-any
 type Bindings = { [key: string]: any }
 
-type ScopeContext = Bindings & {
-  bind: RouterBind
-  dispatch: RouterDispatch
+type Runtime = {
+  readonly bind: RouterBind
+  readonly dispatch: RouterDispatch
+  readonly invoke: (handler: RequestHandler) => unknown
 }
 
-/** One dispatch-level binding scope; unwinds when its dispatch returns. */
-type Scope =
-  | { readonly context: ScopeContext }
-  | { readonly container: Container }
+function createRuntime(
+  values: Bindings,
+  container: Container | undefined,
+): Runtime {
+  if (container) {
+    const cloned = container.clone()
+    const bind: RouterBind = (bindings) => {
+      cloned.bind(bindings)
+    }
+    const runtime: Runtime = {
+      bind,
+      dispatch: (handler, middlewares) => dispatch(runtime, handler, middlewares),
+      invoke: (handler) => cloned.call(handler),
+    }
+    cloned.bind({
+      ...values,
+      bind,
+      dispatch: runtime.dispatch,
+    })
+    return runtime
+  }
+
+  const context: Bindings = { ...values }
+  const bind: RouterBind = (bindings) => {
+    Object.assign(context, bindings)
+  }
+  const runtime: Runtime = {
+    bind,
+    dispatch: (handler, middlewares) => dispatch(runtime, handler, middlewares),
+    invoke: (handler) => handler(context),
+  }
+  context.bind = bind
+  context.dispatch = runtime.dispatch
+  return runtime
+}
 
 async function dispatch(
-  parent: Scope,
+  runtime: Runtime,
   handler: RequestHandler,
   middlewares: RouteMiddleware[],
-  bindings?: Bindings,
 ): Promise<Response | undefined> {
-  const scope = createScope(parent)
-  if (bindings) {
-    bind(scope, bindings)
-  }
   let entered = 0
   for (const { before } of middlewares) {
     entered++
     if (!before) {
       continue
     }
-    const interrupt = await invoke(scope, before)
+    const interrupt = await runtime.invoke(before)
     if (interrupt !== undefined) {
-      return finalize(scope, interrupt, middlewares, entered)
+      return finalize(runtime, interrupt, middlewares, entered)
     }
   }
-  const result = await invoke(scope, handler)
+  const result = await runtime.invoke(handler)
   if (result === undefined) {
     return undefined
   }
-  return finalize(scope, result, middlewares, entered)
+  return finalize(runtime, result, middlewares, entered)
 }
 
 async function finalize(
-  scope: Scope,
+  runtime: Runtime,
   result: unknown,
   middlewares: RouteMiddleware[],
   entered: number,
 ): Promise<Response> {
   let response = respond(result)
-  bind(scope, { response })
+  runtime.bind({ response })
   for (let index = entered - 1; index >= 0; index--) {
     const { after } = middlewares[index]
     if (!after) {
       continue
     }
-    const replacement = await invoke(scope, after)
+    const replacement = await runtime.invoke(after)
     if (replacement !== undefined) {
       response = respond(replacement)
-      bind(scope, { response })
+      runtime.bind({ response })
     }
   }
   return response
-}
-
-function createRootScope(
-  values: Bindings,
-  container: Container | undefined,
-): Scope {
-  if (container) {
-    const cloned = container.clone()
-    cloned.bind(values)
-    return containerScope(cloned)
-  }
-  return contextScope(values as ScopeContext)
-}
-
-function createScope(parent: Scope): Scope {
-  if ("container" in parent) {
-    return containerScope(parent.container.clone())
-  }
-  return contextScope(Object.create(parent.context) as ScopeContext)
-}
-
-function containerScope(container: Container): Scope {
-  const scope: Scope = { container }
-  const scopedBind: RouterBind = (bindings) => {
-    container.bind(bindings)
-  }
-  const scopedDispatch: RouterDispatch = (handler, middlewares, bindings) =>
-    dispatch(scope, handler, middlewares, bindings)
-  container.bind({ bind: scopedBind, dispatch: scopedDispatch })
-  return scope
-}
-
-function contextScope(context: ScopeContext): Scope {
-  const scope: Scope = { context }
-  context.bind = (bindings) => {
-    Object.assign(context, bindings)
-  }
-  context.dispatch = (handler, middlewares, bindings) =>
-    dispatch(scope, handler, middlewares, bindings)
-  return scope
-}
-
-function invoke(scope: Scope, handler: RequestHandler) {
-  return "container" in scope
-    ? scope.container.call(handler)
-    : handler(scope.context)
-}
-
-function bind(scope: Scope, bindings: Bindings) {
-  if ("container" in scope) {
-    scope.container.bind(bindings)
-  } else {
-    Object.assign(scope.context, bindings)
-  }
 }
 
 function respond(result: unknown) {
