@@ -9,19 +9,19 @@ jobs:
   checks:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: https://${{ secrets.FORGE_TOKEN }}@code.quickbasic.org/sigitex/actions/checks@main
+      - uses: actions/checkout@v4.2.2
+      - uses: https://${{ secrets.FORGE_TOKEN }}@code.sigitex.com/sigitex/actions/checks@main
 
   release:
     runs-on: ubuntu-latest
     needs: checks
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4.2.2
         with:
           fetch-depth: 0
-      - uses: https://${{ secrets.FORGE_TOKEN }}@code.quickbasic.org/sigitex/actions/publish-npm@main
+      - uses: https://${{ secrets.FORGE_TOKEN }}@code.sigitex.com/sigitex/actions/publish-npm@main
         with:
           gitea-token: ${{ secrets.FORGE_TOKEN }}
-          gitea-url: https://code.quickbasic.org
+          gitea-url: https://code.sigitex.com
           npm-token: ${{ secrets.NPM_TOKEN }}

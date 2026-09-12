@@ -1,6 +1,4 @@
 node_modules
 *.tsbuildinfo
 dist
-.opencode
-.claude
-CLAUDE.md
+

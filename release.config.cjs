@@ -2,7 +2,7 @@
  * @type {import('semantic-release').GlobalConfig}
  */
 module.exports = {
-  repositoryUrl: "https://code.quickbasic.org/sigitex/route.git",
+  repositoryUrl: "https://code.sigitex.com/sigitex/route.git",
   branches: ["main"],
   plugins: [
     "@semantic-release/commit-analyzer",
